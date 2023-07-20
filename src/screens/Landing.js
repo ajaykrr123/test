@@ -11,7 +11,7 @@ export default function Landing(props) {
     <View>
       <View style={styles.header}>
         {/* <Text>Landing</Text> */}
-        <Text onPress={logoutClick}>Logout</Text>
+        <Text onPress={logoutClick}>LogoutVishnu</Text>
       </View>
     </View>
   );
