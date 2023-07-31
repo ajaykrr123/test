@@ -20,6 +20,7 @@ import {styles} from '../styles/styles';
 import {DeviceList} from '../DeviceList';
 import BleManager from 'react-native-ble-manager';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {clearAll} from './services/AsyncStorage';
 import RNBluetoothClassic, {
   BluetoothDevice
 } from 'react-native-bluetooth-classic';
@@ -27,7 +28,7 @@ import RNBluetoothClassic, {
 const BleManagerModule = NativeModules.BleManager;
 const BleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
-const Landing = () => {
+const Landing = (props) => {
   const peripherals = new Map();
   const [isScanning, setIsScanning] = useState(false);
   const [connectedDevices, setConnectedDevices] = useState([]);
@@ -50,6 +51,10 @@ const Landing = () => {
       }
     }
   };
+  function logoutClick() {
+    clearAll();
+    props.navigation.replace('Login');
+  }
 
   const handleGetConnectedDevices = () => {
     BleManager.getBondedPeripherals([]).then(results => {
@@ -234,6 +239,11 @@ const Landing = () => {
           <Text style={styles.noDevicesText}>No connected devices</Text>
         )}
       </View>
+      <View style={{alignItems: 'center'}}>
+        <Text style={[styles.scanButton,{ alignItems: 'center',  width: 150,
+    marginTop: 150,
+    justifyContent: 'center',textAlign:'center'}]} onPress={logoutClick}>Logout</Text>
+    </View>
     </SafeAreaView>
   );
 };
