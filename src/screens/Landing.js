@@ -1,80 +1,95 @@
-import {View, Text, StyleSheet} from 'react-native';
-import React, { useState, useEffect } from 'react';
-import {clearAll} from './services/AsyncStorage';
-import { BleManager } from 'react-native-ble-plx';
+import React, {useEffect, useState} from 'react';
+import {View, Text, FlatList, Button, TouchableOpacity} from 'react-native';
+import {BleManager} from 'react-native-ble-plx';
+import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
-export default function Landing(props) {
-  
-
-  const [scanning, setScanning] = useState(false);
+export default function Landing() {
   const [devices, setDevices] = useState([]);
-
-  const bleManager = new BleManager();
-
-  useEffect(() => {
-    return () => {
-      // Cleanup the Bluetooth manager when the component unmounts
-      bleManager.destroy();
-    };
-  }, []);
-
-  async function requestLocationPermission() {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION, {
-          title: 'Location permission for bluetooth scanning',
-          message: 'wahtever',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      ); 
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Location permission for bluetooth scanning granted');
-        return true;
-      } else {
-        console.log('Location permission for bluetooth scanning revoked');
-        return false;
-      }
-    } catch (err) {
-      console.warn(err);
-      return false;
+  const manager = new BleManager();
+  useEffect(async () => {
+    const result = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+    if (result !== RESULTS.GRANTED) {
+      // Handle permission not granted
     }
-  }
-  const scanForDevices = async () => {
-    const permission = requestLocationPermission(); 
-    try {
-      setScanning(true);
-      setDevices([]); // Clear the previous scan results
-      await bleManager.startDeviceScan(null, null, (error, device) => {
-        if (error) {
-          console.error('Error scanning:', error);
-          return;
-        }
 
-        console.log('Scanned device:', device.id, device.name);
+    const subscription = manager.onStateChange(state => {
+      console.log('state', state);
+      if (state === 'PoweredOn') {
+        startScan();
+        subscription.remove();
+      }
+    }, true);
 
-        // Check if the device is not already in the list
-        if (!devices.some((dev) => dev.id === device.id)) {
-          setDevices((prevDevices) => [...prevDevices, device]);
+    return () => subscription.remove();
+  }, []);
+  function startScan() {
+    setTimeout(() => {
+      console.log('timeOut');
+      manager.stopDeviceScan();
+    }, 500);
+    manager.startDeviceScan(null, {ScanMode: -1}, (error, scannedDevice) => {
+      if (error) {
+        console.log('error', error);
+        // Handle error (scanning will be stopped automatically)
+        return;
+      }
+
+      setDevices(prevDevices => {
+        const existingDevice = prevDevices.find(
+          device => device.id === scannedDevice.id,
+        );
+        if (existingDevice) {
+          return prevDevices.map(device =>
+            device.id === scannedDevice.id ? scannedDevice : device,
+          );
+        } else {
+          return [...prevDevices, scannedDevice];
         }
       });
-    } catch (error) {
-      console.error('Error while scanning:', error);
-    }
-  };
-  return (
-    <View>
-      <View style={styles.header}>
-        {/* <Text>Landing</Text> */}
-        <Text onPress={() => scanForDevices()}>LogoutVishnu</Text>
-      </View>
+    });
+  }
+  const renderDeviceItem = ({item}) => (
+    <View style={{padding: 10}}>
+      <Text>{item.name}</Text>
+      <Text>{item.id}</Text>
     </View>
   );
 
-}
-
-// const windowWidth = Dimensions.get('window').width;
-const styles = StyleSheet.create({
-  header: {backgroundColor: 'white', flexDirection: 'row'},
-});
+  return (
+    <View>
+      <TouchableOpacity
+        style={{
+          width: 200,
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 10,
+          backgroundColor: '#f00',
+        }}
+        onPress={() => {
+          console.log('Start Bluetooth Scan');
+          startScan();
+          setDevices([]);
+        }}>
+        <Text style={{}}>Start Bluetooth Scan</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          width: 200,
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 10,
+          backgroundColor: '#fe0',
+        }}
+        onPress={() => {
+          console.log('device', devices);
+        }}>
+        <Text style={{}}>Test</Text>
+      </TouchableOpacity>
+      <FlatList
+        data={devices}
+        renderItem={renderDeviceItem}
+        keyExtractor={item => item.id}
+      />
+    </View>
+  );
+};
