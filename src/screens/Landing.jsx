@@ -242,7 +242,7 @@ const Landing = (props) => {
       <View style={{alignItems: 'center'}}>
         <Text style={[styles.scanButton,{ alignItems: 'center',  width: 150,
     marginTop: 150,
-    justifyContent: 'center',textAlign:'center'}]} onPress={logoutClick}>Logout</Text>
+    justifyContent: 'center',textAlign:'center',color: 'white'}]} onPress={logoutClick}>Logout</Text>
     </View>
     </SafeAreaView>
   );
