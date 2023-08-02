@@ -182,7 +182,7 @@ const Landing = (props) => {
             styles.title,
             {color: isDarkMode ? Colors.white : Colors.black},
           ]}>
-          React Native BLE Manager Tutorial
+          BLE Manager
         </Text>
         <TouchableOpacity
           onPress={scan}
