@@ -84,7 +84,7 @@ export default function Signup(props) {
 const windowWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
-  container: {backgroundColor: '#3d72de', flex: 1},
+  container: {backgroundColor: '#2196F3', flex: 1},
   logoContainer: {
     width: 100,
     height: 100,

@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View,Image} from 'react-native';
 import React, {useEffect} from 'react';
 import {getDataJsonValue} from './services/AsyncStorage';
 
@@ -20,7 +20,7 @@ export default function SplashScreen(props) {
       <View style={styles.logoContainer1}></View>
       <View style={styles.logoContainer2}></View>
       <View style={styles.logoContainer3}>
-        <Text style={styles.logoText}>D</Text>
+        <Image style={{width: 100, height: 100,position:'relative'}} source={require('./bluetooth.png')} />
       </View>
     </View>
   );
@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     backgroundColor: 'white',
+    overflow: 'hidden',
     ...Platform.select({
       ios: {
         shadowColor: 'black',

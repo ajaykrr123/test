@@ -22,7 +22,7 @@ export default function Login(props) {
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <Text style={styles.logoText}>D</Text>
+      <Image style={{width: 100, height: 100,position:'relative'}} source={require('./bluetooth.png')} />
       </View>
       <View style={styles.loginContainer}>
         <Text style={styles.loginText}>Sign In</Text>
@@ -78,6 +78,7 @@ const windowWidth = Dimensions.get('window').width;
 const styles = StyleSheet.create({
   container: {backgroundColor: '#2196F3', flex: 1},
   logoContainer: {
+    backgroundColor: 'blue',
     width: 100,
     height: 100,
     borderRadius: 50,
@@ -89,6 +90,7 @@ const styles = StyleSheet.create({
     zIndex: 9999,
     left: '50%',
     marginLeft: -50,
+    overflow: 'hidden',
     // borderColor: 'gray',
     ...Platform.select({
       ios: {
