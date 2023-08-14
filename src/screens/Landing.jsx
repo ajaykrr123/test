@@ -121,39 +121,74 @@ const Landing = (props) => {
         setIsScanning(true);
         console.log("Started Scanning....");
         const peripheral = await RNBluetoothClassic.startDiscovery();
-        console.log("unpaired", peripheral);
-        setIsScanning(false);
         console.log("Stopped Scanning....");
         peripheral.forEach(element => {
-          console.log("peripheral", element)
-          peripherals.set(element.id, element);
-          setDiscoveredDevices(Array.from(peripherals.values()));
-          console.log("DiscoveredDevices", discoveredDevices)
+          peripherals.set(element.id, element);     
         });
-
+        let devices = Array.from(peripherals.values());
+        console.log("Array.from(peripherals.values())",Array.from(peripherals.values()))
+        setDiscoveredDevices(Array.from(devices)); 
+        console.log("peripheral", JSON.stringify(peripheral));
+        
+        setIsScanning(false);
 
       } finally {
+        console.log("DiscoveredDevices", discoveredDevices);
+        Alert.alert("Scan completed");
         // this.setState({ devices, discovering: false });
       }
 
     } else {
-      console.log("Already scanning")
+      console.log("Already scanning");
+      Alert.alert("Already scanning");
     }
   };
 
-  const connect = peripheral => {
-    BleManager.createBond(peripheral.id)
-      .then(() => {
+  const connect = async (peripheral) => {
+    // await new Promise(resolve => setTimeout(resolve, 5000));
+    console.log("connecting peripheral",peripheral);
+    console.log("peripheral.id",peripheral.id);
+    // await BleManager.removeBond(peripheral.id);
+    // try{
+    //   await BleManager.removeBond(peripheral.id);
+    // }catch(e){
+    //   console.log(e)
+    // }
+   
+    let data=await BleManager.createBond(peripheral.id);
+      console.log("connectdata",data)
         peripheral.connected = true;
         peripherals.set(peripheral.id, peripheral);
         let devices = Array.from(peripherals.values());
         setConnectedDevices(Array.from(devices));
         setDiscoveredDevices(Array.from(devices));
         console.log('BLE device paired successfully');
+        Alert.alert(`Connected successfully.`);
+     
+      
+        console.log("Started for readwrite operation.")
+        // readwrite(peripheral);
+      
+  };
+
+  const readwrite = async (peripheral) => {
+    console.log("Enteredx", JSON.stringify(peripheral));
+    await new Promise(resolve => setTimeout(resolve, 10000));
+    console.log("Timout ended")
+      let message="Hi first test";
+      console.log("peripheral.id",peripheral.id)
+      BleManager.retrieveServices('60:C7:BE:02:53:26').then((data) => {
+        Alert.alert(`Retreived data ${data}`);
+       console.log("Retreived data")
       })
-      .catch(() => {
-        throw Error('failed to bond');
-      });
+      .catch((e) => {
+        Alert.alert(`failed to retreive ${e}`);
+        throw Error('failed to retreive');
+      })     
+      // await  RNBluetoothClassic.writeToDevice(peripheral.id,message);
+      //     console.log("Write to device")
+      //  let data=   await RNBluetoothClassic.readFromDevice(peripheral.id);
+      //  console.log("data",data)
   };
 
   const disconnect = peripheral => {
@@ -178,15 +213,15 @@ const Landing = (props) => {
 
   return (
     <SafeAreaView style={[backgroundStyle, styles.container]}>
-        <StatusBar
-          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-          backgroundColor={backgroundStyle.backgroundColor}
-        />
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor={backgroundStyle.backgroundColor}
+      />
       <ImageBackground source={{ uri: 'https://st2.depositphotos.com/3071417/5418/v/450/depositphotos_54184433-stock-illustration-ringing-phone-icon.jpg' }} resizeMode="cover" style={{
         flex: 1,
         justifyContent: 'flex-end',
       }}>
-        <View style={{ pdadingHorizontal: 20,flex:1 }}>
+        <View style={{ pdadingHorizontal: 20, flex: 1 }}>
           <Text
             style={[
               styles.title,
@@ -249,14 +284,14 @@ const Landing = (props) => {
             <Text style={styles.noDevicesText}>No connected devices</Text>
           )}
         </View>
-        <View style={{ alignItems: 'center' ,flex:1}}>
+        <View style={{ alignItems: 'center', flex: 1 }}>
           <Text style={[styles.scanButton, {
             alignItems: 'center', width: 150,
             marginTop: 150,
             justifyContent: 'center', textAlign: 'center', color: 'white'
           }]} onPress={logoutClick}>Logout</Text>
         </View>
-                
+
       </ImageBackground>
     </SafeAreaView >
   );
