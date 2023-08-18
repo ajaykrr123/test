@@ -13,7 +13,8 @@ export default function SplashScreen(props) {
   };
 
   useEffect(() => {
-    getUserData();
+    setTimeout(()=>{getUserData()}, 2000);
+    
   }, []);
   return (
     <View style={styles.container}>
